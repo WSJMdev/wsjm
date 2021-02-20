@@ -35,6 +35,7 @@ public class UserController {
     void insertUser(@RequestBody UserDto user) {
         userMapper.insertUser(user);
         System.out.println("유저 DB 저장 성공");
+        // 프론트에 헤더 코드 201번으로 보내주기
     }
 
     @GetMapping("/{id}")

@@ -5,8 +5,8 @@
 <mapper namespace="com.project.wsjm.mapper.UserMapper">
 
     <insert id="insertUser" parameterType="com.project.wsjm.domain.UserDto">
-        INSERT INTO users(username, password, language)
-        VALUES(#{username}, #{password}, #{language})
+        INSERT INTO users(email, password, language)
+        VALUES(#{email}, #{password}, #{language})
     </insert>
 
     <select id="userList" resultType="com.project.wsjm.domain.UserDto">
