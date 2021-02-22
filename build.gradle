@@ -35,11 +35,16 @@ dependencies {
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+
+    compile "org.apache.tomcat.embed:tomcat-embed-jasper"
+    compile "javax.servlet:jstl"
+    compile "com.google.code.gson:gson"
+    compile "org.springframework.security:spring-security-taglibs"
+
 }
 
 test {
