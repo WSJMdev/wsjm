@@ -65,7 +65,7 @@ public class BoardController {
     /** Login **/
 
     // login Form
-    @RequestMapping(value="/login")
+    @RequestMapping(value="/auth")
     public String memberLogin() throws Exception {
 
         return "index";
@@ -246,7 +246,7 @@ public class BoardController {
 
 
     /** register **/
-    @RequestMapping(value="/register", method=RequestMethod.GET)
+    @RequestMapping(value="/users", method=RequestMethod.GET)
     public void registerGet() throws Exception {
 
         logger.info("********GET register");
@@ -254,7 +254,7 @@ public class BoardController {
     }
 
 
-    @RequestMapping(value="/register", method=RequestMethod.POST)
+    @RequestMapping(value="/users", method=RequestMethod.POST)
     public String memberRegister(MemberVO memberVO) throws Exception {
 
         logger.info("***********register POST");

@@ -36,13 +36,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**").permitAll()
                 .and() // 로그인 설정
                 .formLogin()
-                .loginPage("/login").permitAll()
+                .loginPage("/auth").permitAll()
                 .defaultSuccessUrl("/boardList")
                 .permitAll()
                 .and() // 로그아웃 설정
                 .logout()
                 //.logoutRequestMatcher(new AntPathRequestMatcher("/"))// 변경필요
-                .logoutSuccessUrl("/login")
+                .logoutSuccessUrl("/auth")
                 .invalidateHttpSession(true)
                 .and() // 403 예외처리 핸들링
                 .exceptionHandling().accessDeniedPage("/securityDenied");	// 권한없는 자의 접근
