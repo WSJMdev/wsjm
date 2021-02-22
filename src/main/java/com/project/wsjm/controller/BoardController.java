@@ -108,7 +108,7 @@ public class BoardController {
     @RequestMapping(value="/idCheck", method=RequestMethod.POST)
     public int IdCheck(@RequestBody String memberId) throws Exception {
 
-        logger.info("***********idCheck");
+        logger.info("************idCheck");
 
         int count = 0;
         if(memberId != null) count = boardService.idCheck(memberId);
