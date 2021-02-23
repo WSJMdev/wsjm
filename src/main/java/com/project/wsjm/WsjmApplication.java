@@ -34,6 +34,4 @@ public class WsjmApplication {
         SpringApplication.run(WsjmApplication.class, args);
     }
 
-    // @Bean : 스프링에 필요한 객체를 생성할 때 사용
-    // sessionFactory에 dataSource를 주입하여 Bean으로 사용한다는 의미
 }

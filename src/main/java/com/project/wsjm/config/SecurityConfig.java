@@ -57,8 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // 로그인 설정
     // .formLogin() : form기반으로 인증을 하며 기본적으로 HttpSession을 이용한다.
-    // .loginPage("/user/login") : 기본 제공 form이 아닌 커스텀 로그인 폼 사용시 사용한다.
-    // .defaultSuccessUrl("/user/login/result") : 로그인 성공시 이동되는 페이지, 컨트롤러 매핑이 필요
+    // .loginPage("/user/auth") : 기본 제공 form이 아닌 커스텀 로그인 폼 사용시 사용한다.
+    // .defaultSuccessUrl("/user/auth/result") : 로그인 성공시 이동되는 페이지, 컨트롤러 매핑이 필요
     // .usernameParameter("파라미터명") : 이 설정으로 파라미터명 변경가능
 
     // 로그아웃 설정

@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.project.wsjm.mapper.BoardMapper;
 import com.project.wsjm.service.BoardService;
 import com.project.wsjm.vo.BoardVO;
 import com.project.wsjm.vo.Criteria;
@@ -20,14 +21,90 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
 @CrossOrigin(origins = "*")
 @Controller
+
 public class BoardController {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     BoardService boardService;
+
+
+    /** register **/
+    @RequestMapping(value="/users", method=RequestMethod.GET)
+    public void registerGet() throws Exception {
+
+        System.out.println("******GET register");
+    }
+
+
+    @RequestMapping(value="/users", method=RequestMethod.POST)
+    public String memberRegister(MemberVO memberVO) throws Exception {
+
+        logger.info("***********register POST");
+
+        int count = boardService.idCheck(memberVO.getMemberId());
+        System.out.println(count);
+
+        try {
+            if(count == 0) {
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                String encodePass = encoder.encode(memberVO.getMemberPass());
+                memberVO.setMemberPass(encodePass);
+                boardService.memberRegister(memberVO);
+            }
+        } catch (Exception e) {
+            logger.info("*****존재 하는 아이디");
+        }
+        // return "register";
+        return "redirect:/";
+    }
+
+    /** Login **/
+
+    // login Form
+    @RequestMapping(value="/auth")
+    public String memberLogin() throws Exception {
+
+        return "index";
+    }
+
+
+    // Login
+    @RequestMapping(value="/userCheck", method={RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView userCheck(@RequestParam(required = false) String code, MemberVO memberVO,
+                                  HttpServletRequest req, RedirectAttributes redirect) throws Exception {
+
+        ModelAndView mav = new ModelAndView();
+
+        // 로그인 처리
+
+        String inputPass = memberVO.getMemberPass(); // 입력한 비밀번호
+        MemberVO member = boardService.userCheck(memberVO); // 암호화된 DB비밀번호
+
+        if(member != null) {
+            HttpSession session = req.getSession();
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+            if(encoder.matches(inputPass, member.getMemberPass())) { // 암호화비교, 성공한 경우
+                session.setAttribute("member", member);
+
+                redirect.addAttribute("stateCode", 1); // redirect하면서 code를 넣어주는 방법
+                mav.setViewName("redirect:/boardList");
+            } else { // 암호를 잘못 입력한 경우
+                mav.addObject("code", "matchesError");
+                mav.setViewName("userCheck");
+            }
+        } else { // 없는 아이디거나 빈공란
+            mav.addObject("code", "nullError");
+            mav.addObject("url", "auth");
+        }
+
+        return mav;
+    }
 
 
     //*******security
@@ -62,65 +139,12 @@ public class BoardController {
     }
 
 
-    /** Login **/
-
-    // login Form
-    @RequestMapping(value="/auth")
-    public String memberLogin() throws Exception {
-
-        return "index";
-    }
-
-    // Login
-    @RequestMapping(value="/userCheck", method={RequestMethod.GET, RequestMethod.POST})
-    public ModelAndView userCheck(@RequestParam(required = false) String code, MemberVO memberVO,
-                                  HttpServletRequest req, RedirectAttributes redirect) throws Exception {
-
-        ModelAndView mav = new ModelAndView();
-
-        // 로그인 처리
-
-            String inputPass = memberVO.getMemberPass(); // 입력한 비밀번호
-            MemberVO member = boardService.userCheck(memberVO); // 암호화된 DB비밀번호
-
-            if(member != null) {
-                HttpSession session = req.getSession();
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-                if(encoder.matches(inputPass, member.getMemberPass())) { // 암호화비교, 성공한 경우
-                    session.setAttribute("member", member);
-
-                    redirect.addAttribute("stateCode", 1); // redirect하면서 code를 넣어주는 방법
-                    mav.setViewName("redirect:/boardList");
-                } else { // 암호를 잘못 입력한 경우
-                    mav.addObject("code", "matchesError");
-                    mav.setViewName("userCheck");
-                }
-            } else { // 없는 아이디거나 빈공란
-                mav.addObject("code", "nullError");
-                mav.addObject("url", "login");
-            }
-
-        return mav;
-    }
-
-    @ResponseBody
-    @RequestMapping(value="/idCheck", method=RequestMethod.POST)
-    public int IdCheck(@RequestBody String memberId) throws Exception {
-
-        logger.info("************idCheck");
-
-        int count = 0;
-        if(memberId != null) count = boardService.idCheck(memberId);
-
-        return count;
-    }
 
 
     /** board CRUD **/
     // 게시판 리스트 및 메인페이지
     @RequestMapping(value="/boardList")
-    public String boardList(@RequestParam("stateCode") int stateCode, Criteria cri, Model model, MemberVO memberVO) throws Exception {
+    public String boardList(@RequestParam(value = "stateCode", required = false) int stateCode, Criteria cri, Model model, MemberVO memberVO) throws Exception {
 
         // 전체 글 개수
         int boardListCnt = boardService.boardListCnt();
@@ -160,7 +184,7 @@ public class BoardController {
 
     // 게시판 글쓰기
     @RequestMapping(value="/boardWrite")
-    public String boardWrite(@RequestParam("stateCode") int stateCode, BoardVO boardVO) throws Exception {
+    public String boardWrite(@RequestParam(value = "stateCode") int stateCode, BoardVO boardVO) throws Exception {
 
         boardService.boardWrite(boardVO);
 
@@ -245,36 +269,19 @@ public class BoardController {
     }
 
 
-    /** register **/
-    @RequestMapping(value="/users", method=RequestMethod.GET)
-    public void registerGet() throws Exception {
-
-        logger.info("********GET register");
-        // void 타입일 경우 접근하는 URL 경로에 해당하는 jsp를 찾아 실행한다.
-    }
 
 
-    @RequestMapping(value="/users", method=RequestMethod.POST)
-    public String memberRegister(MemberVO memberVO) throws Exception {
-
-        logger.info("***********register POST");
-
-        int count = boardService.idCheck(memberVO.getMemberId());
-        System.out.println(count);
-
-        try {
-            if(count == 0) {
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                String encodePass = encoder.encode(memberVO.getMemberPass());
-                memberVO.setMemberPass(encodePass);
-                boardService.memberRegister(memberVO);
-            }
-        } catch (Exception e) {
-            logger.info("*****존재 하는 아이디");
-        }
-        return "redirect:/";
-    }
     // 가입시 다시한번 아이디의 갯수를 체크해주는 부분
+
+    @ResponseBody
+    @RequestMapping(value="/idCheck", method=RequestMethod.POST)
+    public int IdCheck(@RequestBody String memberId) throws Exception {
+
+        int count = 0;
+        if(memberId != null) count = boardService.idCheck(memberId);
+
+        return count;
+    }
 
 
     /* membeModify */
